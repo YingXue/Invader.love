@@ -1,3 +1,4 @@
+print("Welcome")
 love.graphics.setDefaultFilter('nearest', 'nearest')
 enemy = {}
 enemies_controller = {}
@@ -12,6 +13,7 @@ function define_playerAndEnemy()
 	player.cooldown = 20 -- bullet cooldown time 20 tics
 	player.speed = 5
 	player.fire_sound = love.audio.newSource('shoot.wav')
+	player.collision_sound = love.audio.newSource('invaderkilled.wav')
 	player.fire = function()		
 		if player.cooldown <= 0 then
 			love.audio.play(player.fire_sound)
@@ -33,6 +35,8 @@ function enemies_controller:spawnEnemy(x, y, speed)
 	enemy.x = x
 	enemy.y = y
 	enemy.bullets = {}
+	enemy.width = 50
+	enemy.height = 30
 	enemy.cooldown = 20 -- enemy cooldown time 20 tics
 	enemy.speed = speed
 	table.insert(self.enemies, enemy)
@@ -48,6 +52,16 @@ function enemy:fire() -- parameter ommit: being self (enemy)
 		end
 end
 
+function checkCollisions(enemies, bullets)
+	for i,e in ipairs(enemies) do
+		for _,b in pairs(bullets) do
+			if b.y <= e.y + e.height and b.x > e.x and b.x < e.x + e.width then
+				love.audio.play(player.collision_sound) -- play collsion sound
+				table.remove(enemies,i) -- remove enemy
+			end
+		end
+	end
+end
 
 -- load, update and draw
 function love.load()
@@ -84,6 +98,9 @@ function love.update(dt)
 		-- bullets move up
 		b.y = b.y - 10
 	end
+
+	-- check collision
+	checkCollisions(enemies_controller.enemies, player.bullets)
 end
 
 function love.draw() -- called each time by update
