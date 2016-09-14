@@ -11,8 +11,10 @@ function define_playerAndEnemy()
 	player.bullets = {}
 	player.cooldown = 20 -- bullet cooldown time 20 tics
 	player.speed = 5
-	player.fire = function()
+	player.fire_sound = love.audio.newSource('shoot.wav')
+	player.fire = function()		
 		if player.cooldown <= 0 then
+			love.audio.play(player.fire_sound)
 			player.cooldown = 20
 			bullet = {}
 			bullet.x = player.x + 35
