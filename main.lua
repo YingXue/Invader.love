@@ -21,7 +21,7 @@ function define_playerAndEnemy()
 		end
 	end
 	player.image = love.graphics.newImage('defender.png')
-	
+
 	enemies_controller:spawnEnemy(0, 0, 1)
 	enemies_controller:spawnEnemy(100, 0, 2)
 end
@@ -46,8 +46,10 @@ function enemy:fire() -- parameter ommit: being self (enemy)
 		end
 end
 
-function love.load()
 
+-- load, update and draw
+function love.load()
+	-- define player and enemies
 	define_playerAndEnemy()
 end
 
