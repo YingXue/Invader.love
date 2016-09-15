@@ -4,6 +4,34 @@ enemy = {}
 enemies_controller = {}
 enemies_controller.enemies = {}
 enemies_controller.image = love.graphics.newImage('invader.png')
+particle_systems = {}
+particle_systems.list = {}
+particle_systems.img = love.graphics.newImage('particle.png')
+
+function particle_systems:spawn(x, y)
+  local ps = {}
+  ps.x = x
+  ps.y = y
+  ps.ps = love.graphics.newParticleSystem(particle_systems.img, 32)
+  ps.ps:setParticleLifetime(2, 4)
+  ps.ps:setEmissionRate(5)
+  ps.ps:setSizeVariation(1)
+  ps.ps:setLinearAcceleration(-20, -20, 20, 20)
+  ps.ps:setColors(100, 255, 100, 255, 0, 255, 0, 255)
+  table.insert(particle_systems.list, ps)
+end
+
+function particle_systems:draw()
+  	for _, v in pairs(particle_systems.list) do
+    	love.graphics.draw(v.ps, v.x, v.y)
+  	end
+end
+
+function particle_systems:update(dt)
+  for _, v in pairs(particle_systems.list) do
+    v.ps:update(dt)
+  end
+end
 
 function define_playerAndEnemy()
 	player = {}
@@ -26,8 +54,36 @@ function define_playerAndEnemy()
 	end
 	player.image = love.graphics.newImage('defender.png')
 
-	enemies_controller:spawnEnemy(0, 0, 1)
-	enemies_controller:spawnEnemy(100, 0, 2)
+	for i = 0, 5 do
+		enemies_controller:spawnEnemy(i * 80, i , 1)
+	end
+end
+
+function checkCollisions(enemies, bullets)
+	for i,e in ipairs(enemies) do
+		for _,b in pairs(bullets) do
+			if b.y <= e.y + e.height and b.x > e.x and b.x < e.x + e.width then
+				love.audio.play(player.collision_sound) -- play collsion sound
+				particle_systems:spawn(e.x + e.width/2, e.y + e.height/2)
+				table.remove(enemies,i) -- remove enemy
+			end
+		end
+	end
+end
+
+-- load, update and draw
+function love.load()
+	background_image = love.graphics.newImage('background.jpeg')
+	local music = love.audio.newSource('Wrecking Ball.mp3')
+	music:setLooping(true)
+	love.audio.play(music)
+	
+	-- define player and enemies
+	define_playerAndEnemy()
+
+	game_over = false
+
+	game_win = false
 end
 
 function enemies_controller:spawnEnemy(x, y, speed)
@@ -52,24 +108,8 @@ function enemy:fire() -- parameter ommit: being self (enemy)
 		end
 end
 
-function checkCollisions(enemies, bullets)
-	for i,e in ipairs(enemies) do
-		for _,b in pairs(bullets) do
-			if b.y <= e.y + e.height and b.x > e.x and b.x < e.x + e.width then
-				love.audio.play(player.collision_sound) -- play collsion sound
-				table.remove(enemies,i) -- remove enemy
-			end
-		end
-	end
-end
-
--- load, update and draw
-function love.load()
-	-- define player and enemies
-	define_playerAndEnemy()
-end
-
 function love.update(dt)
+	particle_systems:update(dt)
 	player.cooldown = player.cooldown -1
 
 	-- move players left and right
@@ -85,7 +125,15 @@ function love.update(dt)
 	end
 
 	-- move enemies
+		-- check win state
+	if #enemies_controller.enemies == 0 then
+		game_win = true
+	end
+
 	for _,e in pairs(enemies_controller.enemies) do 
+		if e.y >= love.graphics.getHeight() then
+			game_over = true
+		end
 		e.y = e.y + e.speed
 	end
 
@@ -104,7 +152,21 @@ function love.update(dt)
 end
 
 function love.draw() -- called each time by update
-	love.graphics.setColor(255,255,255)
+	love.graphics.setColor(255,255,255)	
+
+	-- draw background
+	love.graphics.draw(background_image)
+
+	-- check game over
+	if game_over then
+		love.graphics.print("Game Over")
+		return
+	elseif game_win then
+		love.graphics.print("You win")
+	end
+
+	-- draw particle system
+	particle_systems:draw()
 
 	-- draw player
 	love.graphics.draw(player.image, player.x, player.y)
