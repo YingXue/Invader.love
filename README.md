@@ -11,3 +11,4 @@ $ vim ~/.bashrc
 	add line: alias lovep='open -n -a love "/Users/kalian1127/Documents/Program/Invader.love"'
 $ vim ~/.bash_profile
 	add line: source ~/.bashrc
+
