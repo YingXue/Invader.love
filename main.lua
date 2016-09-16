@@ -8,6 +8,7 @@ particle_systems = {}
 particle_systems.list = {}
 particle_systems.img = love.graphics.newImage('particle.png')
 
+-- spawn partcile system
 function particle_systems:spawn(x, y)
   local ps = {}
   ps.x = x
@@ -21,18 +22,21 @@ function particle_systems:spawn(x, y)
   table.insert(particle_systems.list, ps)
 end
 
+-- draw particles
 function particle_systems:draw()
   	for _, v in pairs(particle_systems.list) do
     	love.graphics.draw(v.ps, v.x, v.y)
   	end
 end
 
+-- update particles
 function particle_systems:update(dt)
   for _, v in pairs(particle_systems.list) do
     v.ps:update(dt)
   end
 end
 
+-- define player and spawn enemies
 function define_playerAndEnemy()
 	player = {}
 	player.x = 0
@@ -59,6 +63,7 @@ function define_playerAndEnemy()
 	end
 end
 
+-- check player and enemy collision
 function checkCollisions(enemies, bullets)
 	for i,e in ipairs(enemies) do
 		for _,b in pairs(bullets) do
@@ -86,6 +91,7 @@ function love.load()
 	game_win = false
 end
 
+-- spawn enemy -- parameter ommit: being self (enemies controller)
 function enemies_controller:spawnEnemy(x, y, speed)
 	enemy = {}
 	enemy.x = x
@@ -98,16 +104,7 @@ function enemies_controller:spawnEnemy(x, y, speed)
 	table.insert(self.enemies, enemy)
 end
 
-function enemy:fire() -- parameter ommit: being self (enemy)
-	if self.cooldown <= 0 then
-			self.cooldown = 20
-			bullet = {}
-			bullet.x = self.x 
-			bullet.y = self.y
-			table.insert(self.bullets , bullet)
-		end
-end
-
+-- update, load, and draw
 function love.update(dt)
 	particle_systems:update(dt)
 	player.cooldown = player.cooldown -1
