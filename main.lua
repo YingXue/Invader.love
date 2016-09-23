@@ -1,9 +1,10 @@
-print("Welcome")
 love.graphics.setDefaultFilter('nearest', 'nearest')
+
 enemy = {}
 enemies_controller = {}
 enemies_controller.enemies = {}
 enemies_controller.image = love.graphics.newImage('invader.png')
+
 particle_systems = {}
 particle_systems.list = {}
 particle_systems.img = love.graphics.newImage('particle.png')
@@ -37,7 +38,7 @@ function particle_systems:update(dt)
 end
 
 -- define player and spawn enemies
-function define_playerAndEnemy()
+function define_player()
 	player = {}
 	player.x = 0
 	player.y = 550
@@ -56,8 +57,10 @@ function define_playerAndEnemy()
 			table.insert(player.bullets , bullet)
 		end
 	end
-	player.image = love.graphics.newImage('defender.png')
+	player.image = love.graphics.newImage('defender.png')	
+end
 
+function define_enemy()
 	for i = 0, 5 do
 		enemies_controller:spawnEnemy(i * 80, i , 1)
 	end
@@ -69,7 +72,7 @@ function checkCollisions(enemies, bullets)
 		for _,b in pairs(bullets) do
 			if b.y <= e.y + e.height and b.x > e.x and b.x < e.x + e.width then
 				love.audio.play(player.collision_sound) -- play collsion sound
-				particle_systems:spawn(e.x + e.width/2, e.y + e.height/2)
+				particle_systems:spawn(e.x + e.width/2, e.y + e.height/2) -- spawn particles
 				table.remove(enemies,i) -- remove enemy
 			end
 		end
@@ -84,10 +87,10 @@ function love.load()
 	love.audio.play(music)
 	
 	-- define player and enemies
-	define_playerAndEnemy()
+	define_player()
+	define_enemy()
 
 	game_over = false
-
 	game_win = false
 end
 
@@ -132,6 +135,15 @@ function love.update(dt)
 			game_over = true
 		end
 		e.y = e.y + e.speed
+
+		math.randomseed(os.time())
+		random_number = math.random();
+		if (random_number - math.floor(random_number / 2) * 2 == 1) then
+			e.x = e.x + e.speed
+		else
+			e.x = e.x - e.speed
+		end
+
 	end
 
 	-- clean up bullets to release memory
