@@ -62,7 +62,11 @@ end
 
 function define_enemy()
 	for i = 0, 5 do
-		enemies_controller:spawnEnemy(i * 80, i , 1)
+		if math.fmod(math.random(1,800),5) == 0 then
+			enemies_controller:spawnEnemy(i * 100 + 80, i , 1)
+		else 
+			enemies_controller:spawnEnemy(i * 100 + 80, i , 1.5)
+		end
 	end
 end
 
@@ -136,14 +140,12 @@ function love.update(dt)
 		end
 		e.y = e.y + e.speed
 
-		math.randomseed(os.time())
-		random_number = math.random();
-		if (random_number - math.floor(random_number / 2) * 2 == 1) then
-			e.x = e.x + e.speed
-		else
-			e.x = e.x - e.speed
+		-- randomize left or right or no move of enemies
+		if math.fmod(math.random(1,100),5) == 0 then
+			e.x = e.x - e.speed * 2
+		elseif math.fmod(math.random(1,100),5) == 1 then
+			e.x = e.x + e.speed * 2
 		end
-
 	end
 
 	-- clean up bullets to release memory
