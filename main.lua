@@ -86,7 +86,7 @@ end
 -- load, update and draw
 function love.load()
 	background_image = love.graphics.newImage('background.jpeg')
-	local music = love.audio.newSource('Wrecking Ball.mp3')
+	local music = love.audio.newSource('backgroundmusic.mp3')
 	music:setLooping(true)
 	love.audio.play(music)
 	
